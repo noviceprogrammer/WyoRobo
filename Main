@@ -1,0 +1,86 @@
+/*
+    @author Benjamin Chen
+    Latest Change: 9/29
+    Notes: Messed around with the game to see how it works. Debris are not randomly 
+           numbered. First four are numbered 0-3, second four 4-7, and last three 8-10.
+           
+           Needs to implement navigation
+*/
+
+
+
+//Declare any variables shared between functions here
+
+float myState[12];
+float debris[11][4];
+float targetPosi[3];
+int n;
+float tolerance;
+float distance;
+
+char result[50];
+
+void init(){
+	//This function is called once when your code is first loaded.
+	game.getDebris(debris);
+	
+	n = 0;
+	
+	targetPosi[0] = debris[4][0];
+	targetPosi[1] = debris[4][1];
+	targetPosi[2] = debris[4][2];
+	
+	
+	
+	
+	tolerance = 0.04;
+	
+	distance = 0.0;
+	
+
+}
+
+
+
+float calcDistance(float x1, float y1, float z1, float x2, float y2, float z2)
+{
+    float num = 0;
+    num = sqrtf(powf((x1-x2), 2) + powf((y1-y2), 2) + powf((z1-z2), 2));
+    return num;
+}
+
+
+
+
+void goToPosition( float posn[] , float tolerance) {
+    float err = fabsf(myState[0]-posn[0]) + fabsf(myState[1]-posn[1]) + fabsf(myState[2] - posn[2]);
+
+    if (err > tolerance)
+        api.setPositionTarget(posn);
+    
+    else
+        targetPosi[0] = debris[n+1][0];
+        targetPosi[1] = debris[n+1][1];
+        targetPosi[2] = debris[n+1][2];
+        n += 1;
+    
+}
+	
+
+
+
+void loop(){
+	//This function is called once per second.  Use it to control the satellite.
+	
+	api.getMyZRState(myState);
+	
+	goToPosition(targetPosi, tolerance);
+	
+	distance = calcDistance(myState[0], myState[1], myState[2], debris[0][0], debris[0][1], debris[0][2]);
+	
+	sprintf(result, "%f", distance);
+	DEBUG(("Distance: %s", result));
+	
+	
+}
+
